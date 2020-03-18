@@ -1,0 +1,50 @@
+version: '3'
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - "80:80"
+    network_mode: host
+    volumes:
+      - /home/pi/html:/usr/share/nginx/html
+      - /home/pi/nginx/nginx.conf:/etc/nginx/nginx.conf
+    restart: always
+
+  mqtt:
+    container_name: mqtt
+    restart: unless-stopped
+    image: eclipse-mosquitto
+    privileged: true
+    network_mode: host
+    volumes:
+      - /home/pi/mqtt/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - /home/pi/mqtt/log:/mosquitto/log
+      - /home/pi/mqtt/data:/mosquitto/data
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+
+#  postgres:
+#    container_name: postgresql
+#    image: postgres
+#    restart: always
+#    environment:
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_PASSWORD=postgres
+#      - POSTGRES_DB=slavik
+#    ports:
+#      - "5433:5432"
+#    network_mode: host
+#    volumes:
+#      - /home/pi/postgres:/var/lib/postgresql/data/
+
+# rest:
+#   container_name: slavik-server
+#   image: slavik-server:latest
+#   ports:
+#     - "8080:8080"
+#   restart: always
+#   depends_on:
+#     - nginx
