@@ -1,5 +1,7 @@
 package tk.slaaavyn.slavikserver.model;
 
+import tk.slaaavyn.slavikserver.model.component.BaseComponent;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -14,7 +16,7 @@ public class Device {
 
     String description;
 
-    @OneToMany(targetEntity = BaseComponent.class)
+    @OneToMany(targetEntity = BaseComponent.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     List<BaseComponent> components;
 
     public Long get_id() {

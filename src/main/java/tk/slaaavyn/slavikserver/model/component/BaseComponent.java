@@ -1,10 +1,12 @@
-package tk.slaaavyn.slavikserver.model;
+package tk.slaaavyn.slavikserver.model.component;
+
+import tk.slaaavyn.slavikserver.model.ComponentType;
 
 import javax.persistence.*;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class BaseComponent {
+public class BaseComponent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long _id;
@@ -12,7 +14,7 @@ public abstract class BaseComponent {
     private Integer id;
 
     @Enumerated(EnumType.STRING)
-    private ComponentType componentType;
+    private ComponentType type;
 
     public Long get_id() {
         return _id;
@@ -30,11 +32,11 @@ public abstract class BaseComponent {
         this.id = id;
     }
 
-    public ComponentType getComponentType() {
-        return componentType;
+    public ComponentType getType() {
+        return type;
     }
 
-    public void setComponentType(ComponentType componentType) {
-        this.componentType = componentType;
+    public void setType(ComponentType componentType) {
+        this.type = componentType;
     }
 }
