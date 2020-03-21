@@ -6,6 +6,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import tk.slaaavyn.slavikserver.model.Temperature;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,13 +14,13 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
-public class SocketHandler extends TextWebSocketHandler {
+public class TemperatureSocketHandler extends TextWebSocketHandler {
 
     private List<WebSocketSession> sessions;
 
     private final Gson gson;
 
-    public SocketHandler(Gson gson) {
+    public TemperatureSocketHandler(Gson gson) {
         this.sessions = new CopyOnWriteArrayList<>();
         this.gson = gson;
     }
@@ -27,25 +28,27 @@ public class SocketHandler extends TextWebSocketHandler {
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message)
             throws InterruptedException, IOException {
-        Map<String, String> value = gson.fromJson(message.getPayload(), Map.class);
-        session.sendMessage(new TextMessage("Hello " + value.get("name") + " !"));
     }
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished(WebSocketSession session) {
         sessions.add(session);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         super.afterConnectionClosed(session, status);
-        this.sessions.remove(session);
+        sessions.remove(session);
     }
 
 
-    private void sendMessageForAll(String message) throws IOException {
-        for(WebSocketSession webSocketSession : this.sessions) {
-            webSocketSession.sendMessage(new TextMessage(message));
-        }
+    public void sendMessageForAll(Temperature temperature) {
+        sessions.forEach(sessions -> {
+            try {
+                sessions.sendMessage(new TextMessage(gson.toJson(temperature, Temperature.class)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

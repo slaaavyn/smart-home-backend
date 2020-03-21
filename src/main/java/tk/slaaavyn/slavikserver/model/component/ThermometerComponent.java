@@ -3,7 +3,6 @@ package tk.slaaavyn.slavikserver.model.component;
 import tk.slaaavyn.slavikserver.model.ComponentType;
 
 public class ThermometerComponent extends BaseComponent {
-
     private double temperature;
     private double humidity;
 

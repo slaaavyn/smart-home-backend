@@ -8,7 +8,6 @@ import java.util.List;
 
 public interface TemperatureRepository extends JpaRepository<Temperature, Long> {
     Temperature findTemperatureById (Long id);
-    Temperature findTemperatureByDevice_idAndCreationDateAfter (String id, Date date);
-    List<Temperature> findTemperaturesByDevice_idAndCreationDateAfter (String id, Date date);
+    List<Temperature> findTemperaturesByDevice_IdAndCreationDateAfter (Long id, Date date);
     void deleteAllByCreationDateBefore (Date date);
 }

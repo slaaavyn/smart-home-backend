@@ -1,4 +1,4 @@
-package tk.slaaavyn.slavikserver.service.impl;
+package tk.slaaavyn.slavikserver.service;
 
 import tk.slaaavyn.slavikserver.model.Device;
 

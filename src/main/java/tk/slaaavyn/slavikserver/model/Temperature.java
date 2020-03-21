@@ -16,7 +16,8 @@ public class Temperature {
 
     Date creationDate;
 
-    @OneToOne
+    @ManyToOne(targetEntity = Device.class)
+    @JoinColumn(name = "DEVICE_ID", referencedColumnName = "ID")
     Device device;
 
     public Long getId() {
