@@ -1,36 +1,38 @@
 package tk.slaaavyn.slavikserver.model;
 
+import tk.slaaavyn.slavikserver.model.component.BaseComponent;
+
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
 public class Device {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long _id;
+    Long id;
 
-    String id;
+    String uid;
 
     String description;
 
-    @OneToMany(targetEntity = BaseComponent.class)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "DEVICE_ID", nullable = false)
     List<BaseComponent> components;
 
-    public Long get_id() {
-        return _id;
-    }
-
-    public void set_id(Long _id) {
-        this._id = _id;
-    }
-
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getDescription() {
@@ -52,8 +54,8 @@ public class Device {
     @Override
     public String toString() {
         return "Device{" +
-                "_id=" + _id +
-                ", id='" + id + '\'' +
+                "id=" + id +
+                ", id='" + uid + '\'' +
                 ", description='" + description + '\'' +
                 ", components=" + components +
                 '}';
