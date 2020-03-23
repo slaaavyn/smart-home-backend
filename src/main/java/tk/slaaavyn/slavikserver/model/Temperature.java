@@ -1,23 +1,30 @@
 package tk.slaaavyn.slavikserver.model;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.util.Date;
 
 @Entity
+@Table(name = "temperature")
 public class Temperature {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    Double temperature;
+    @Column(name = "temperature")
+    private Double temperature;
 
+    @Column(name = "humidity")
     Double humidity;
 
     Date creationDate;
 
     @ManyToOne(targetEntity = Device.class)
-    @JoinColumn(name = "DEVICE_ID", referencedColumnName = "ID")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "device_id", referencedColumnName = "id", insertable = false, updatable = false)
     Device device;
 
     public Long getId() {

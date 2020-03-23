@@ -15,5 +15,5 @@ public interface DeviceService {
 
     List<Device> getOnlineDevices();
 
-    void removeDevice(long deviceId);
+    boolean removeDevice(long deviceId);
 }

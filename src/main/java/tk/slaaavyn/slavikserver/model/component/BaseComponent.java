@@ -1,20 +1,30 @@
 package tk.slaaavyn.slavikserver.model.component;
 
 import tk.slaaavyn.slavikserver.model.ComponentType;
+import tk.slaaavyn.slavikserver.model.Device;
 
 import javax.persistence.*;
 
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public class BaseComponent {
+@Table(name = "component")
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="type", discriminatorType=DiscriminatorType.STRING)
+public abstract class BaseComponent {
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "index")
     private Integer index;
 
+    @Column(name = "type", insertable = false, updatable = false)
     @Enumerated(EnumType.STRING)
     private ComponentType type;
+
+    @ManyToOne
+    @JoinColumn(name = "device_id")
+    private Device device;
 
     public Long getId() {
         return id;
@@ -40,12 +50,22 @@ public class BaseComponent {
         this.type = componentType;
     }
 
+    public Device getDevice() {
+        return device;
+    }
+
+    public void setDevice(Device device) {
+        this.device = device;
+    }
+
     @Override
     public String toString() {
         return "BaseComponent{" +
                 "id=" + id +
                 ", index=" + index +
                 ", type=" + type +
+                ", deviceId=" + device.getId() +
                 '}';
     }
 }
+

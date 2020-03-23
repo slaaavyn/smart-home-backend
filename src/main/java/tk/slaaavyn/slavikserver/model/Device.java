@@ -6,17 +6,20 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
+@Table(name = "device")
 public class Device {
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    @Column(name = "uid")
     String uid;
 
+    @Column(name = "description")
     String description;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "DEVICE_ID", nullable = false)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "device", orphanRemoval = true)
     List<BaseComponent> components;
 
     public Long getId() {

@@ -30,11 +30,9 @@ public class DeviceServiceImpl implements DeviceService {
         Device device = deviceRepository.findDeviceByUid(incomingDevice.getUid());
 
         if (device != null) {
-            device.setComponents(updateDeviceComponents(device, incomingDevice.getComponents()));
-            device.setDescription(incomingDevice.getDescription());
-            device = deviceRepository.save(device);
+            device = saveExistDevice(device, incomingDevice.getComponents());
         } else {
-            device = deviceRepository.save(incomingDevice);
+            device = saveNewDevice(incomingDevice);
         }
 
         if (!isDeviceOnline(device)) {
@@ -67,17 +65,35 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public void removeDevice(long deviceId) {
+    public boolean removeDevice(long deviceId) {
         Device device = deviceRepository.findDeviceById(deviceId);
         if (device == null) {
-            return;
+            return false;
         }
 
         deviceRepository.delete(device);
+        return true;
     }
 
     private boolean isDeviceOnline(Device device) {
         return onlineDevices.stream().anyMatch(d -> d.getUid().equals(device.getUid()));
+    }
+
+    private Device saveNewDevice(Device device) {
+        device = deviceRepository.save(device);
+
+        for (BaseComponent component : device.getComponents()) {
+            component.setDevice(device);
+        }
+
+        componentRepository.saveAll(device.getComponents());
+
+        return device;
+    }
+
+    private Device saveExistDevice(Device device, List<BaseComponent> incomingComponents) {
+        device.setComponents(updateDeviceComponents(device, incomingComponents));
+        return  deviceRepository.save(device);
     }
 
     private List<BaseComponent> updateDeviceComponents(Device device, List<BaseComponent> incomingComponents) {
@@ -94,7 +110,10 @@ public class DeviceServiceImpl implements DeviceService {
             Optional<BaseComponent> foundComponent
                     = device.getComponents().stream().filter(c -> c.getIndex().equals(component.getIndex())).findAny();
 
-            foundComponent.ifPresent(baseComponent -> component.setId(baseComponent.getId()));
+            foundComponent.ifPresent(baseComponent -> {
+                component.setId(baseComponent.getId());
+                component.setDevice(device);
+            });
 
             updatedComponents.add(component);
         });
