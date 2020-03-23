@@ -8,7 +8,7 @@ import java.util.List;
 public interface TemperatureService {
     void emmitToWebSocket(Temperature temperature);
 
-    Temperature save(Temperature temperature);
+    Temperature save(Temperature temperature, int componentIndex) ;
 
     List<Temperature> getAllByAfterDate(Long deviceId, Date afterDate);
 

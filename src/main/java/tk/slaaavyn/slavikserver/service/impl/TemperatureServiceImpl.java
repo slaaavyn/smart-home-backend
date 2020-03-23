@@ -5,23 +5,28 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import tk.slaaavyn.slavikserver.model.Temperature;
+import tk.slaaavyn.slavikserver.model.component.ThermometerComponent;
+import tk.slaaavyn.slavikserver.repo.ComponentRepository;
 import tk.slaaavyn.slavikserver.repo.TemperatureRepository;
 import tk.slaaavyn.slavikserver.service.TemperatureService;
 import tk.slaaavyn.slavikserver.ws.TemperatureSocketHandler;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TemperatureServiceImpl implements TemperatureService {
     private final Logger logger = LoggerFactory.getLogger(TemperatureServiceImpl.class);
 
     private final TemperatureRepository temperatureRepository;
+    private final ComponentRepository componentRepository;
     private final TemperatureSocketHandler temperatureSocketHandler;
 
-    public TemperatureServiceImpl(TemperatureRepository temperatureRepository,
+    public TemperatureServiceImpl(TemperatureRepository temperatureRepository, ComponentRepository componentRepository,
                                   TemperatureSocketHandler temperatureSocketHandler) {
         this.temperatureRepository = temperatureRepository;
+        this.componentRepository = componentRepository;
         this.temperatureSocketHandler = temperatureSocketHandler;
     }
 
@@ -33,12 +38,23 @@ public class TemperatureServiceImpl implements TemperatureService {
     }
 
     @Override
-    public Temperature save(Temperature temperature) {
+    public Temperature save(Temperature temperature, int componentIndex) {
         if (!isTemperatureValid(temperature)) {
             return null;
         }
 
         temperature.setCreationDate(new Date());
+
+        Optional<ThermometerComponent> deviceComponent = temperature.getDevice().getComponents().stream()
+                .filter(component -> component.getIndex() == componentIndex)
+                .findFirst()
+                .map(component -> (ThermometerComponent) component);
+
+        deviceComponent.ifPresent(component -> {
+            component.setTemperature(temperature.getTemperature());
+            component.setHumidity(temperature.getHumidity());
+            componentRepository.save(component);
+        });
 
         return temperatureRepository.save(temperature);
     }

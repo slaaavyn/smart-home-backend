@@ -1,5 +1,6 @@
 package tk.slaaavyn.slavikserver.model.component;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import tk.slaaavyn.slavikserver.model.ComponentType;
 import tk.slaaavyn.slavikserver.model.Device;
 
@@ -22,6 +23,7 @@ public abstract class BaseComponent {
     @Enumerated(EnumType.STRING)
     private ComponentType type;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "device_id")
     private Device device;

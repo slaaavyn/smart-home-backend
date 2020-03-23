@@ -94,7 +94,7 @@ public class DhtDevice {
             return;
         }
 
-        temperature = temperatureService.save(temperature);
+        temperature = temperatureService.save(temperature, 1);
 
         if(temperature != null) {
             lastSaveTemperature = temperature.getCreationDate();

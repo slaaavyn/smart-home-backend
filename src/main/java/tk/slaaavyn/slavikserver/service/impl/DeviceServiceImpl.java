@@ -65,6 +65,18 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
+    public Device updateDescription(long deviceId, String description) {
+        Device device = deviceRepository.findDeviceById(deviceId);
+        if (device == null) {
+            return null;
+        }
+
+        device.setDescription(description != null ? description : device.getDescription());
+
+        return deviceRepository.save(device);
+    }
+
+    @Override
     public boolean removeDevice(long deviceId) {
         Device device = deviceRepository.findDeviceById(deviceId);
         if (device == null) {
@@ -75,7 +87,8 @@ public class DeviceServiceImpl implements DeviceService {
         return true;
     }
 
-    private boolean isDeviceOnline(Device device) {
+    @Override
+    public boolean isDeviceOnline(Device device) {
         return onlineDevices.stream().anyMatch(d -> d.getUid().equals(device.getUid()));
     }
 
