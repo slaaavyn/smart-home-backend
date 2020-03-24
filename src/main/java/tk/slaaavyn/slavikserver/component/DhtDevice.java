@@ -57,8 +57,10 @@ public class DhtDevice {
             DhtData dhtData = dht11.getData();
             dhtData.setTemperature(dhtData.getTemperature() - 2);
 
+            ThermometerComponent component = (ThermometerComponent) dhtDevice.getComponents().get(0);
+
             Temperature temperature = new Temperature();
-            temperature.setDevice(dhtDevice);
+            temperature.setComponent(component);
             temperature.setTemperature(dhtData.getTemperature());
             temperature.setHumidity(dhtData.getHumidity());
             temperature.setCreationDate(new Date());
@@ -94,7 +96,7 @@ public class DhtDevice {
             return;
         }
 
-        temperature = temperatureService.save(temperature, 1);
+        temperature = temperatureService.save(temperature, dhtDevice.getComponents().get(0).getId());
 
         if(temperature != null) {
             lastSaveTemperature = temperature.getCreationDate();

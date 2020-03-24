@@ -13,7 +13,6 @@ import tk.slaaavyn.slavikserver.ws.TemperatureSocketHandler;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TemperatureServiceImpl implements TemperatureService {
@@ -38,30 +37,26 @@ public class TemperatureServiceImpl implements TemperatureService {
     }
 
     @Override
-    public Temperature save(Temperature temperature, int componentIndex) {
-        if (!isTemperatureValid(temperature)) {
+    public Temperature save(Temperature temperature, long componentId) {
+        ThermometerComponent component = (ThermometerComponent) componentRepository.findBaseComponentById(componentId);
+
+        if (!isTemperatureValid(temperature) || component == null) {
             return null;
         }
 
+        temperature.setComponent(component);
         temperature.setCreationDate(new Date());
 
-        Optional<ThermometerComponent> deviceComponent = temperature.getDevice().getComponents().stream()
-                .filter(component -> component.getIndex() == componentIndex)
-                .findFirst()
-                .map(component -> (ThermometerComponent) component);
-
-        deviceComponent.ifPresent(component -> {
-            component.setTemperature(temperature.getTemperature());
-            component.setHumidity(temperature.getHumidity());
-            componentRepository.save(component);
-        });
+        component.setTemperature(temperature.getTemperature());
+        component.setHumidity(temperature.getHumidity());
+        componentRepository.save(component);
 
         return temperatureRepository.save(temperature);
     }
 
     @Override
-    public List<Temperature> getAllByAfterDate(Long deviceId, Date afterDate) {
-        return temperatureRepository.findTemperaturesByDevice_IdAndCreationDateAfter(deviceId, afterDate);
+    public List<Temperature> getAllByAfterDate(Long componentId, Date afterDate) {
+        return temperatureRepository.findTemperaturesByComponent_IdAndCreationDateAfter(componentId, afterDate);
     }
 
     @Override
@@ -79,6 +74,6 @@ public class TemperatureServiceImpl implements TemperatureService {
 
     private boolean isTemperatureValid(Temperature temperature) {
         return temperature != null && temperature.getTemperature() != null
-                && temperature.getDevice() != null && temperature.getDevice().getId() != null;
+                && temperature.getComponent() != null && temperature.getComponent().getId() != null;
     }
 }

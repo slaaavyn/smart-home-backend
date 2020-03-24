@@ -2,6 +2,8 @@ package tk.slaaavyn.slavikserver.model;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import tk.slaaavyn.slavikserver.model.component.BaseComponent;
+import tk.slaaavyn.slavikserver.model.component.ThermometerComponent;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -20,12 +22,13 @@ public class Temperature {
     @Column(name = "humidity")
     Double humidity;
 
+    @Column(name = "creation_date")
     Date creationDate;
 
-    @ManyToOne(targetEntity = Device.class)
+    @ManyToOne(targetEntity = BaseComponent.class)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "device_id", referencedColumnName = "id", insertable = false, updatable = false)
-    Device device;
+    @JoinColumn(name = "component_id", nullable = false)
+    BaseComponent component;
 
     public Long getId() {
         return id;
@@ -59,12 +62,12 @@ public class Temperature {
         this.creationDate = creationDate;
     }
 
-    public Device getDevice() {
-        return device;
+    public BaseComponent getComponent() {
+        return component;
     }
 
-    public void setDevice(Device device) {
-        this.device = device;
+    public void setComponent(BaseComponent component) {
+        this.component = component;
     }
 
     @Override
@@ -74,7 +77,9 @@ public class Temperature {
                 ", temperature=" + temperature +
                 ", humidity=" + humidity +
                 ", creationDate=" + creationDate +
-                ", device=" + device +
+                ", description=" + component.getDescription() +
+                ", componentId=" + component.getId() +
+                ", deviceId=" + component.getDevice().getId() +
                 '}';
     }
 }
