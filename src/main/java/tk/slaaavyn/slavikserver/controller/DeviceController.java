@@ -47,6 +47,19 @@ public class DeviceController {
         return ResponseEntity.ok(DeviceDto.toDTO(result, isDeviceOnline));
     }
 
+    @PutMapping(value = "/component/{id}")
+    public ResponseEntity<DeviceDto> updateDeviceComponentDescription(@PathVariable(name = "id") Long id,
+                                                                      @RequestParam("description") String description) {
+        Device result = deviceService.updateDeviceComponentDescription(id, description);
+        if (result == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        boolean isDeviceOnline = deviceService.isDeviceOnline(result);
+
+        return ResponseEntity.ok(DeviceDto.toDTO(result, isDeviceOnline));
+    }
+
     @PutMapping(value = "{id}")
     public ResponseEntity<DeviceDto> updateDeviceDescription(@PathVariable(name = "id") Long id,
                                                              @RequestParam("description") String description) {

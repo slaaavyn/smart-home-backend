@@ -17,6 +17,8 @@ public interface DeviceService {
 
     Device updateDescription(long deviceId, String description);
 
+    Device updateDeviceComponentDescription(long componentId, String description);
+
     boolean removeDevice(long deviceId);
 
     boolean isDeviceOnline(Device device);

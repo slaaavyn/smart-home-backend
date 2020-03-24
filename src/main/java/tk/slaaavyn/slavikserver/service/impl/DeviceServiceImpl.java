@@ -77,6 +77,19 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
+    public Device updateDeviceComponentDescription(long componentId, String description) {
+        BaseComponent component = componentRepository.findBaseComponentById(componentId);
+        if (component == null) {
+            return null;
+        }
+
+        component.setDescription(description != null ? description : component.getDescription());
+        componentRepository.save(component);
+
+        return getById(component.getDevice().getId());
+    }
+
+    @Override
     public boolean removeDevice(long deviceId) {
         Device device = deviceRepository.findDeviceById(deviceId);
         if (device == null) {

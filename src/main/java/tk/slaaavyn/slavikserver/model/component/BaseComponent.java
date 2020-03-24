@@ -23,6 +23,9 @@ public abstract class BaseComponent {
     @Enumerated(EnumType.STRING)
     private ComponentType type;
 
+    @Column(name = "description")
+    private String description;
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "device_id")
@@ -52,6 +55,14 @@ public abstract class BaseComponent {
         this.type = componentType;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Device getDevice() {
         return device;
     }
@@ -66,6 +77,7 @@ public abstract class BaseComponent {
                 "id=" + id +
                 ", index=" + index +
                 ", type=" + type +
+                ", description=" + description +
                 ", deviceId=" + device.getId() +
                 '}';
     }
