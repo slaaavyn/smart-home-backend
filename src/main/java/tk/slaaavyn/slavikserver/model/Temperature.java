@@ -20,15 +20,15 @@ public class Temperature {
     private Double temperature;
 
     @Column(name = "humidity")
-    Double humidity;
+    private Double humidity;
 
     @Column(name = "creation_date")
-    Date creationDate;
+    private Date creationDate;
 
     @ManyToOne(targetEntity = BaseComponent.class)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "component_id", nullable = false)
-    BaseComponent component;
+    private BaseComponent component;
 
     public Long getId() {
         return id;

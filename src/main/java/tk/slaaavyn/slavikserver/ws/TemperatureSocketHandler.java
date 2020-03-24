@@ -6,6 +6,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import tk.slaaavyn.slavikserver.dto.TemperatureDto;
 import tk.slaaavyn.slavikserver.model.Temperature;
 
 import java.io.IOException;
@@ -26,8 +27,7 @@ public class TemperatureSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void handleTextMessage(WebSocketSession session, TextMessage message)
-            throws InterruptedException, IOException {
+    public void handleTextMessage(WebSocketSession session, TextMessage message) {
     }
 
     @Override
@@ -43,9 +43,11 @@ public class TemperatureSocketHandler extends TextWebSocketHandler {
 
 
     public void sendMessageForAll(Temperature temperature) {
+        TextMessage message = new TextMessage(gson.toJson(TemperatureDto.toDTO(temperature), TemperatureDto.class));
+
         sessions.forEach(sessions -> {
             try {
-                sessions.sendMessage(new TextMessage(gson.toJson(temperature, Temperature.class)));
+                sessions.sendMessage(message);
             } catch (IOException e) {
                 e.printStackTrace();
             }
