@@ -17,7 +17,8 @@ public class WebSocketConfig implements WebSocketConfigurer {
     }
 
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(socketHandler, "/temperature");
+        registry.addHandler(socketHandler,
+                EndpointConstants.WEB_SOCKET_ENDPOINT + EndpointConstants.TEMPERATURE_ENDPOINT);
     }
 
 }
