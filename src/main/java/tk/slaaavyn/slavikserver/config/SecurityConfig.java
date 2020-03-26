@@ -43,6 +43,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT,EndpointConstants.USER_ENDPOINT + "/update-info/**").authenticated()
                 .antMatchers(EndpointConstants.USER_ENDPOINT + "/**").hasRole("ADMIN")
 
+                /* ROOM */
+                .antMatchers(HttpMethod.GET,EndpointConstants.ROOM_ENDPOINT + "/**").authenticated()
+                .antMatchers(EndpointConstants.ROOM_ENDPOINT + "/**").hasRole("ADMIN")
+
                 /* DEVICE */
                 .antMatchers(HttpMethod.GET,EndpointConstants.DEVICE_ENDPOINT + "/**").authenticated()
                 .antMatchers(EndpointConstants.DEVICE_ENDPOINT + "/**").hasRole("ADMIN")

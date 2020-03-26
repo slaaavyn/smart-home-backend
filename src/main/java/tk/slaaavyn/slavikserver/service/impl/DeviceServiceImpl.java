@@ -2,9 +2,11 @@ package tk.slaaavyn.slavikserver.service.impl;
 
 import org.springframework.stereotype.Service;
 import tk.slaaavyn.slavikserver.model.Device;
+import tk.slaaavyn.slavikserver.model.Room;
 import tk.slaaavyn.slavikserver.model.component.BaseComponent;
 import tk.slaaavyn.slavikserver.repo.ComponentRepository;
 import tk.slaaavyn.slavikserver.repo.DeviceRepository;
+import tk.slaaavyn.slavikserver.repo.RoomRepository;
 import tk.slaaavyn.slavikserver.service.DeviceService;
 
 import java.util.ArrayList;
@@ -17,10 +19,13 @@ public class DeviceServiceImpl implements DeviceService {
 
     private final DeviceRepository deviceRepository;
     private final ComponentRepository componentRepository;
+    private final RoomRepository roomRepository;
 
-    public DeviceServiceImpl(DeviceRepository deviceRepository, ComponentRepository componentRepository) {
+    public DeviceServiceImpl(DeviceRepository deviceRepository, ComponentRepository componentRepository,
+                             RoomRepository roomRepository) {
         this.deviceRepository = deviceRepository;
         this.componentRepository = componentRepository;
+        this.roomRepository = roomRepository;
     }
 
     @Override
@@ -87,6 +92,20 @@ public class DeviceServiceImpl implements DeviceService {
         componentRepository.save(component);
 
         return getById(component.getDevice().getId());
+    }
+
+    @Override
+    public Device setDeviceToRoom(long deviceId, long roomId) {
+        Device device = deviceRepository.findDeviceById(deviceId);
+        Room room = roomRepository.findRoomById(roomId);
+
+        if (device == null || room == null) {
+            return null;
+        }
+
+        device.setRoom(room);
+
+        return deviceRepository.save(device);
     }
 
     @Override

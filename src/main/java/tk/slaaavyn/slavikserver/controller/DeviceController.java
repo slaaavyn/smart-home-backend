@@ -74,6 +74,20 @@ public class DeviceController {
         return ResponseEntity.ok(DeviceDto.toDTO(result, isDeviceOnline));
     }
 
+    @PutMapping(value = "{id}/set-room/{roomId}")
+    public ResponseEntity<DeviceDto> setDeviceToRoom(@PathVariable(name = "id") Long id,
+                                                             @PathVariable("roomId") Long roomId) {
+
+        Device result = deviceService.setDeviceToRoom(id, roomId);
+        if (result == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        boolean isDeviceOnline = deviceService.isDeviceOnline(result);
+
+        return ResponseEntity.ok(DeviceDto.toDTO(result, isDeviceOnline));
+    }
+
     @DeleteMapping(value = "{id}")
     public ResponseEntity<DeviceDto> deleteDevice(@PathVariable(name = "id") Long id) {
         if (!deviceService.removeDevice(id)) {

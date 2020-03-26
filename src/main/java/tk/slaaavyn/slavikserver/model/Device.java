@@ -11,16 +11,20 @@ public class Device {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Column(name = "uid")
-    String uid;
+    private String uid;
 
     @Column(name = "description")
-    String description;
+    private String description;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "device", orphanRemoval = true)
     List<BaseComponent> components;
+
+    @ManyToOne(targetEntity = Room.class)
+    @JoinColumn(name = "room_id")
+    Room room;
 
     public Long getId() {
         return id;
@@ -54,13 +58,22 @@ public class Device {
         this.components = components;
     }
 
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+
     @Override
     public String toString() {
         return "Device{" +
                 "id=" + id +
-                ", id='" + uid + '\'' +
+                ", uid='" + uid + '\'' +
                 ", description='" + description + '\'' +
                 ", components=" + components +
+                ", roomId=" + room.getId() +
                 '}';
     }
 }
