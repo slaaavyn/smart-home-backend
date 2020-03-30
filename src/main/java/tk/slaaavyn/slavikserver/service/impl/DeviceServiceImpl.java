@@ -1,13 +1,16 @@
 package tk.slaaavyn.slavikserver.service.impl;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import tk.slaaavyn.slavikserver.model.Device;
 import tk.slaaavyn.slavikserver.model.Room;
-import tk.slaaavyn.slavikserver.model.component.BaseComponent;
+import tk.slaaavyn.slavikserver.model.device.component.BaseComponent;
 import tk.slaaavyn.slavikserver.repo.ComponentRepository;
 import tk.slaaavyn.slavikserver.repo.DeviceRepository;
 import tk.slaaavyn.slavikserver.repo.RoomRepository;
 import tk.slaaavyn.slavikserver.service.DeviceService;
+import tk.slaaavyn.slavikserver.service.WsResponseService;
+import tk.slaaavyn.slavikserver.ws.models.response.MethodResponseToClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +23,14 @@ public class DeviceServiceImpl implements DeviceService {
     private final DeviceRepository deviceRepository;
     private final ComponentRepository componentRepository;
     private final RoomRepository roomRepository;
+    private final WsResponseService wsResponseService;
 
     public DeviceServiceImpl(DeviceRepository deviceRepository, ComponentRepository componentRepository,
-                             RoomRepository roomRepository) {
+                             RoomRepository roomRepository, WsResponseService wsResponseService) {
         this.deviceRepository = deviceRepository;
         this.componentRepository = componentRepository;
         this.roomRepository = roomRepository;
+        this.wsResponseService = wsResponseService;
     }
 
     @Override
@@ -44,12 +49,19 @@ public class DeviceServiceImpl implements DeviceService {
             onlineDevices.add(device);
         }
 
+        wsResponseService.emmitDeviceToClient(device, true, MethodResponseToClient.UPDATE);
+
         return device;
     }
 
     @Override
-    public List<Device> disconnect(long deviceId) {
-        onlineDevices.removeIf(device -> device.getId().equals(deviceId));
+    public List<Device> disconnect(String deviceUid) {
+        Device device = deviceRepository.findDeviceByUid(deviceUid);
+        if (device == null) return onlineDevices;
+
+        onlineDevices.removeIf(onlineDevice -> onlineDevice.getUid().equals(deviceUid));
+
+        wsResponseService.emmitDeviceToClient(device, false, MethodResponseToClient.UPDATE);
 
         return onlineDevices;
     }
@@ -70,13 +82,15 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public Device updateDescription(long deviceId, String description) {
+    public Device updateDeviceDescription(long deviceId, String description) {
         Device device = deviceRepository.findDeviceById(deviceId);
         if (device == null) {
             return null;
         }
 
         device.setDescription(description != null ? description : device.getDescription());
+
+        wsResponseService.emmitDeviceToClient(device, isDeviceOnline(device), MethodResponseToClient.UPDATE);
 
         return deviceRepository.save(device);
     }
@@ -91,7 +105,10 @@ public class DeviceServiceImpl implements DeviceService {
         component.setDescription(description != null ? description : component.getDescription());
         componentRepository.save(component);
 
-        return getById(component.getDevice().getId());
+        Device device = getById(component.getDevice().getId());
+        wsResponseService.emmitDeviceToClient(device, isDeviceOnline(device), MethodResponseToClient.UPDATE);
+
+        return device;
     }
 
     @Override
@@ -105,6 +122,8 @@ public class DeviceServiceImpl implements DeviceService {
 
         device.setRoom(room);
 
+        wsResponseService.emmitDeviceToClient(device, isDeviceOnline(device), MethodResponseToClient.UPDATE);
+
         return deviceRepository.save(device);
     }
 
@@ -116,6 +135,8 @@ public class DeviceServiceImpl implements DeviceService {
         }
 
         deviceRepository.delete(device);
+        wsResponseService.emmitDeviceToClient(device, isDeviceOnline(device), MethodResponseToClient.DELETE);
+
         return true;
     }
 
@@ -155,11 +176,9 @@ public class DeviceServiceImpl implements DeviceService {
             Optional<BaseComponent> foundComponent
                     = device.getComponents().stream().filter(c -> c.getIndex().equals(component.getIndex())).findAny();
 
-            foundComponent.ifPresent(baseComponent -> {
-                component.setId(baseComponent.getId());
-                component.setDevice(device);
-            });
+            foundComponent.ifPresent(baseComponent -> component.setId(baseComponent.getId()));
 
+            component.setDevice(device);
             updatedComponents.add(component);
         });
 

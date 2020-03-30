@@ -1,4 +1,4 @@
-package tk.slaaavyn.slavikserver.model.component;
+package tk.slaaavyn.slavikserver.model.device.component;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import tk.slaaavyn.slavikserver.model.ComponentType;

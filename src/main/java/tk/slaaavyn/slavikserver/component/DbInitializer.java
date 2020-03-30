@@ -44,6 +44,10 @@ public class DbInitializer implements CommandLineRunner {
         roleUser.setName(SecurityConstants.ROLE_USER);
         roleRepository.save(roleUser);
 
+        Role roleDevice = new Role();
+        roleDevice.setName(SecurityConstants.ROLE_DEVICE);
+        roleRepository.save(roleDevice);
+
         logger.info("ROLES has been initialized");
     }
 

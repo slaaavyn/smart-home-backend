@@ -3,6 +3,7 @@ package tk.slaaavyn.slavikserver.security.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,7 +21,11 @@ import java.util.List;
 
 @Component
 public class JwtTokenProvider {
+    @Value("${jwt.secret}")
+    private String secret;
+
     private SecretKey secretKey;
+
     private long validityInMilliseconds;
 
     private final UserDetailsService userDetailsService;
@@ -36,7 +41,7 @@ public class JwtTokenProvider {
 
     @PostConstruct
     protected void init() {
-        secretKey = Keys.hmacShaKeyFor(SecurityConstants.JWT_SECRET.getBytes());
+        secretKey = Keys.hmacShaKeyFor(secret.getBytes());
         validityInMilliseconds = SecurityConstants.TOKEN_VALIDITY_TIME;
     }
 

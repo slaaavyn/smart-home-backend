@@ -2,7 +2,7 @@ package tk.slaaavyn.slavikserver.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import tk.slaaavyn.slavikserver.model.Device;
-import tk.slaaavyn.slavikserver.model.component.BaseComponent;
+import tk.slaaavyn.slavikserver.model.device.component.BaseComponent;
 
 import java.util.List;
 

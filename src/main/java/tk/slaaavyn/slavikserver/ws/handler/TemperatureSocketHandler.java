@@ -1,4 +1,4 @@
-package tk.slaaavyn.slavikserver.ws;
+package tk.slaaavyn.slavikserver.ws.handler;
 
 import com.google.gson.Gson;
 import org.springframework.stereotype.Component;

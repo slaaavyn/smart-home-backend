@@ -2,8 +2,7 @@ package tk.slaaavyn.slavikserver.model;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import tk.slaaavyn.slavikserver.model.component.BaseComponent;
-import tk.slaaavyn.slavikserver.model.component.ThermometerComponent;
+import tk.slaaavyn.slavikserver.model.device.component.BaseComponent;
 
 import javax.persistence.*;
 import java.util.Date;

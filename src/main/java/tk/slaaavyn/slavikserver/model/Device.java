@@ -1,6 +1,6 @@
 package tk.slaaavyn.slavikserver.model;
 
-import tk.slaaavyn.slavikserver.model.component.BaseComponent;
+import tk.slaaavyn.slavikserver.model.device.component.BaseComponent;
 
 import javax.persistence.*;
 import java.util.List;
@@ -73,7 +73,7 @@ public class Device {
                 ", uid='" + uid + '\'' +
                 ", description='" + description + '\'' +
                 ", components=" + components +
-                ", roomId=" + room.getId() +
+                ", roomId=" + (room != null ? room.getId() : null) +
                 '}';
     }
 }

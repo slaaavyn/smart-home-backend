@@ -1,10 +1,13 @@
 package tk.slaaavyn.slavikserver.service.impl;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import tk.slaaavyn.slavikserver.model.Room;
 import tk.slaaavyn.slavikserver.repo.DeviceRepository;
 import tk.slaaavyn.slavikserver.repo.RoomRepository;
+import tk.slaaavyn.slavikserver.service.WsResponseService;
 import tk.slaaavyn.slavikserver.service.RoomService;
+import tk.slaaavyn.slavikserver.ws.models.response.MethodResponseToClient;
 
 import java.util.List;
 
@@ -13,10 +16,13 @@ public class RoomServiceImpl implements RoomService {
 
     private final RoomRepository roomRepository;
     private final DeviceRepository deviceRepository;
+    private final WsResponseService wsResponseService;
 
-    public RoomServiceImpl(RoomRepository roomRepository, DeviceRepository deviceRepository) {
+    public RoomServiceImpl(RoomRepository roomRepository, DeviceRepository deviceRepository,
+                           WsResponseService wsResponseService) {
         this.roomRepository = roomRepository;
         this.deviceRepository = deviceRepository;
+        this.wsResponseService = wsResponseService;
     }
 
     @Override
@@ -29,7 +35,10 @@ public class RoomServiceImpl implements RoomService {
         room = new Room();
         room.setName(roomName);
 
-        return roomRepository.save(room);
+        room = roomRepository.save(room);
+
+        wsResponseService.emmitRoomToClient(room, MethodResponseToClient.UPDATE);
+        return room;
     }
 
     @Override
@@ -51,7 +60,10 @@ public class RoomServiceImpl implements RoomService {
 
         room.setName(newRoomName);
 
-        return roomRepository.save(room);
+        room = roomRepository.save(room);
+
+        wsResponseService.emmitRoomToClient(room, MethodResponseToClient.UPDATE);
+        return room;
     }
 
     @Override
@@ -65,6 +77,7 @@ public class RoomServiceImpl implements RoomService {
         deviceRepository.saveAll(room.getDeviceList());
 
         roomRepository.delete(room);
+        wsResponseService.emmitRoomToClient(room, MethodResponseToClient.DELETE);
         return true;
     }
 }

@@ -5,11 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import tk.slaaavyn.slavikserver.model.Temperature;
-import tk.slaaavyn.slavikserver.model.component.ThermometerComponent;
+import tk.slaaavyn.slavikserver.model.device.component.ThermometerComponent;
 import tk.slaaavyn.slavikserver.repo.ComponentRepository;
 import tk.slaaavyn.slavikserver.repo.TemperatureRepository;
 import tk.slaaavyn.slavikserver.service.TemperatureService;
-import tk.slaaavyn.slavikserver.ws.TemperatureSocketHandler;
+import tk.slaaavyn.slavikserver.ws.handler.TemperatureSocketHandler;
 
 import java.util.Date;
 import java.util.List;

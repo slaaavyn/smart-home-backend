@@ -55,6 +55,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET,EndpointConstants.TEMPERATURE_ENDPOINT + "/**").authenticated()
                 .antMatchers(EndpointConstants.TEMPERATURE_ENDPOINT + "/**").hasRole("ADMIN")
 
+                /* WS */
+                .antMatchers(EndpointConstants.WS_TEMPERATURE+ "/**").permitAll()
+                .antMatchers(EndpointConstants.WS_DEVICE + "/**").permitAll()
+                .antMatchers(EndpointConstants.WS_CLIENT + "/**").permitAll()
+
                 .anyRequest().authenticated()
                 .and()
                 .apply(new JwtConfigurer(jwtTokenProvider));

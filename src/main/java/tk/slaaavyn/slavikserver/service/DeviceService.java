@@ -7,7 +7,7 @@ import java.util.List;
 public interface DeviceService {
     Device connect(Device device);
 
-    List<Device> disconnect(long deviceId);
+    List<Device> disconnect(String deviceUid);
 
     Device getById(long deviceId);
 
@@ -15,7 +15,7 @@ public interface DeviceService {
 
     List<Device> getOnlineDevices();
 
-    Device updateDescription(long deviceId, String description);
+    Device updateDeviceDescription(long deviceId, String description);
 
     Device updateDeviceComponentDescription(long componentId, String description);
 

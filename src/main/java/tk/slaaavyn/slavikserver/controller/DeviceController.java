@@ -64,7 +64,7 @@ public class DeviceController {
     public ResponseEntity<DeviceDto> updateDeviceDescription(@PathVariable(name = "id") Long id,
                                                              @RequestParam("description") String description) {
 
-        Device result = deviceService.updateDescription(id, description);
+        Device result = deviceService.updateDeviceDescription(id, description);
         if (result == null) {
             return ResponseEntity.badRequest().build();
         }
