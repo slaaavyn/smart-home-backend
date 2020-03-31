@@ -1,12 +1,8 @@
 plugins {
 	id 'org.springframework.boot' version '2.2.4.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
-	id 'com.google.cloud.tools.jib' version '2.0.0'
 	id 'java'
 }
-
-jib.to.image = 'slavik-server'
-jib.from.image = 'openjdk:alpine'
 
 group = 'tk.slaaavyn'
 version = '0.0.1-SNAPSHOT'
