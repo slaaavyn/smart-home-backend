@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import tk.slaaavyn.slavikserver.model.ComponentType;
 import tk.slaaavyn.slavikserver.model.Device;
 import tk.slaaavyn.slavikserver.model.Temperature;
 import tk.slaaavyn.slavikserver.model.device.component.BaseComponent;
@@ -15,6 +16,8 @@ import tk.slaaavyn.slavikserver.service.TemperatureService;
 import tk.slaaavyn.slavikserver.utils.dhtxx.DHT11;
 import tk.slaaavyn.slavikserver.utils.dhtxx.DHTxx;
 import tk.slaaavyn.slavikserver.utils.dhtxx.DhtData;
+import tk.slaaavyn.slavikserver.ws.handler.TemperatureSocketHandler;
+import tk.slaaavyn.slavikserver.ws.models.commands.ThermometerCommand;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,17 +28,18 @@ import java.util.List;
 public class DhtDevice {
     private final Logger logger = LoggerFactory.getLogger(DhtDevice.class);
 
-    private Date lastSaveTemperature;
-
     private final DeviceService deviceService;
     private final TemperatureService temperatureService;
+    private final TemperatureSocketHandler temperatureSocketHandler;
 
     private final DHTxx dht11;
     private final Device dhtDevice;
 
-    public DhtDevice(DeviceService deviceService, TemperatureService temperatureService) {
+    public DhtDevice(DeviceService deviceService, TemperatureService temperatureService,
+                     TemperatureSocketHandler temperatureSocketHandler) {
         this.deviceService = deviceService;
         this.temperatureService = temperatureService;
+        this.temperatureSocketHandler = temperatureSocketHandler;
 
         dht11 = new DHT11(RaspiPin.GPIO_07);
         dhtDevice = connectDevice();
@@ -65,9 +69,16 @@ public class DhtDevice {
             temperature.setHumidity(dhtData.getHumidity());
             temperature.setCreationDate(new Date());
 
-            saveTemperature(temperature);
+            temperatureService.save(temperature, dhtDevice.getUid(), component.getIndex());
 
-            temperatureService.emmitToWebSocket(temperature);
+            ThermometerCommand thermometerCommand = new ThermometerCommand();
+            thermometerCommand.setUid(dhtDevice.getUid());
+            thermometerCommand.setIndex(component.getIndex());
+            thermometerCommand.setType(ComponentType.THERMOMETER);
+            thermometerCommand.setTemperature(dhtData.getTemperature());
+            thermometerCommand.setHumidity(dhtData.getHumidity());
+
+            temperatureSocketHandler.emmitForAll(thermometerCommand);
             logger.info(dhtData.toString());
         } catch (Exception e) {
             logger.error("Dht checkTemp: ", e);
@@ -89,17 +100,5 @@ public class DhtDevice {
         device.setComponents(components);
 
         return deviceService.connect(device);
-    }
-
-    private void saveTemperature(Temperature temperature) {
-        if (lastSaveTemperature != null && new Date().getTime() < (lastSaveTemperature.getTime() + 60000)) {
-            return;
-        }
-
-        temperature = temperatureService.save(temperature, dhtDevice.getComponents().get(0).getId());
-
-        if(temperature != null) {
-            lastSaveTemperature = temperature.getCreationDate();
-        }
     }
 }

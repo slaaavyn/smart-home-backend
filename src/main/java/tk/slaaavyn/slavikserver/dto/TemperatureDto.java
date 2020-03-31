@@ -11,6 +11,7 @@ public class TemperatureDto {
     private Date creationDate;
     private String description;
     private Long deviceId;
+    private String deviceUid;
     private Long componentId;
 
     public static TemperatureDto toDTO(Temperature temperature) {
@@ -21,6 +22,7 @@ public class TemperatureDto {
         temperatureDto.setCreationDate(temperature.getCreationDate());
         temperatureDto.setDescription(temperature.getComponent().getDescription());
         temperatureDto.setDeviceId(temperature.getComponent().getDevice().getId());
+        temperatureDto.setDeviceUid(temperature.getComponent().getDevice().getUid());
         temperatureDto.setComponentId(temperature.getComponent().getId());
 
         return temperatureDto;
@@ -74,11 +76,33 @@ public class TemperatureDto {
         this.deviceId = deviceId;
     }
 
+    public String getDeviceUid() {
+        return deviceUid;
+    }
+
+    public void setDeviceUid(String deviceUid) {
+        this.deviceUid = deviceUid;
+    }
+
     public Long getComponentId() {
         return componentId;
     }
 
     public void setComponentId(Long componentId) {
         this.componentId = componentId;
+    }
+
+    @Override
+    public String toString() {
+        return "TemperatureDto{" +
+                "id=" + id +
+                ", temperature=" + temperature +
+                ", humidity=" + humidity +
+                ", creationDate=" + creationDate +
+                ", description='" + description + '\'' +
+                ", deviceId=" + deviceId +
+                ", deviceUid='" + deviceUid + '\'' +
+                ", componentId=" + componentId +
+                '}';
     }
 }

@@ -1,6 +1,5 @@
 package tk.slaaavyn.slavikserver.service.impl;
 
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import tk.slaaavyn.slavikserver.model.Device;
 import tk.slaaavyn.slavikserver.model.Room;

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tk.slaaavyn.slavikserver.ws.models.commands.BaseCommand;
 import tk.slaaavyn.slavikserver.ws.models.commands.RelayCommand;
+import tk.slaaavyn.slavikserver.ws.models.commands.ThermometerCommand;
 
 public class WsCommandParser {
     private static final Logger logger = LoggerFactory.getLogger(WsCommandParser.class);
@@ -35,6 +36,18 @@ public class WsCommandParser {
             return command;
         } catch (IllegalStateException | JsonSyntaxException e) {
             logger.warn("parse incoming relay command: " + e);
+            return null;
+        }
+    }
+
+    public static ThermometerCommand parseThermometerCommand(String message) {
+        try {
+            ThermometerCommand command = gson.fromJson(message, ThermometerCommand.class);
+            if (command == null) throw new JsonSyntaxException("invalid thermometer command");
+
+            return command;
+        } catch (IllegalStateException | JsonSyntaxException e) {
+            logger.warn("parse incoming thermometer command: " + e);
             return null;
         }
     }

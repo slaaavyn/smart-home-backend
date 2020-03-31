@@ -4,43 +4,38 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import tk.slaaavyn.slavikserver.model.ComponentType;
 import tk.slaaavyn.slavikserver.model.Temperature;
 import tk.slaaavyn.slavikserver.model.device.component.ThermometerComponent;
 import tk.slaaavyn.slavikserver.repo.ComponentRepository;
 import tk.slaaavyn.slavikserver.repo.TemperatureRepository;
 import tk.slaaavyn.slavikserver.service.TemperatureService;
-import tk.slaaavyn.slavikserver.ws.handler.TemperatureSocketHandler;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
 public class TemperatureServiceImpl implements TemperatureService {
     private final Logger logger = LoggerFactory.getLogger(TemperatureServiceImpl.class);
 
+    private final HashMap<Long, Temperature> temperatures = new HashMap<>();
+
     private final TemperatureRepository temperatureRepository;
     private final ComponentRepository componentRepository;
-    private final TemperatureSocketHandler temperatureSocketHandler;
 
-    public TemperatureServiceImpl(TemperatureRepository temperatureRepository, ComponentRepository componentRepository,
-                                  TemperatureSocketHandler temperatureSocketHandler) {
+    public TemperatureServiceImpl(TemperatureRepository temperatureRepository, ComponentRepository componentRepository) {
         this.temperatureRepository = temperatureRepository;
         this.componentRepository = componentRepository;
-        this.temperatureSocketHandler = temperatureSocketHandler;
     }
 
     @Override
-    public void emmitToWebSocket(Temperature temperature) {
-        if(isTemperatureValid(temperature)) {
-            temperatureSocketHandler.sendMessageForAll(temperature);
-        }
-    }
+    public Temperature save(Temperature temperature, String deviceUid, int componentIndex) {
+        ThermometerComponent component = (ThermometerComponent) componentRepository
+                .findBaseComponentByDevice_UidAndIndex(deviceUid, componentIndex);
 
-    @Override
-    public Temperature save(Temperature temperature, long componentId) {
-        ThermometerComponent component = (ThermometerComponent) componentRepository.findBaseComponentById(componentId);
-
-        if (!isTemperatureValid(temperature) || component == null) {
+        if (component == null || component.getType() != ComponentType.THERMOMETER
+                || temperature == null || !isTimeToSave(component.getId())) {
             return null;
         }
 
@@ -50,6 +45,8 @@ public class TemperatureServiceImpl implements TemperatureService {
         component.setTemperature(temperature.getTemperature());
         component.setHumidity(temperature.getHumidity());
         componentRepository.save(component);
+
+        temperatures.put(component.getId(), temperature);
 
         return temperatureRepository.save(temperature);
     }
@@ -69,11 +66,16 @@ public class TemperatureServiceImpl implements TemperatureService {
         long ONE_MONTH = 2629800000L;
         Date dateMonthAgo = new Date(new Date().getTime() - ONE_MONTH);
         temperatureRepository.deleteAllByCreationDateBefore(dateMonthAgo);
+
+        temperatures.clear();
+
         logger.info("Remove old temperature data");
     }
 
-    private boolean isTemperatureValid(Temperature temperature) {
-        return temperature != null && temperature.getTemperature() != null
-                && temperature.getComponent() != null && temperature.getComponent().getId() != null;
+    private boolean isTimeToSave(long componentId) {
+        if(!temperatures.containsKey(componentId)) {
+            return true;
+        } else return temperatures.containsKey(componentId)
+                && (temperatures.get(componentId).getCreationDate().getTime() + 60000) <= new Date().getTime();
     }
 }
