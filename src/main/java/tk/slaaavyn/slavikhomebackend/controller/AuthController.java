@@ -75,7 +75,7 @@ public class AuthController {
     }
 
     private AuthResponseDto generateTokenResponse(User user) {
-        Date tokenExpired = new Date();
+        Date tokenExpired = new Date(new Date().getTime() + 86400000);
 
         String token = SecurityConstants.TOKEN_PREFIX +
                 jwtTokenProvider.createToken(user.getUsername(), Collections.singletonList(user.getRole().getName()));
