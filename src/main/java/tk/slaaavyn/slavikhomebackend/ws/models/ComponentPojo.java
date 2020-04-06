@@ -16,6 +16,10 @@ public class ComponentPojo {
     @Expose
     private ComponentType type;
 
+    @SerializedName("defaultStatus")
+    @Expose
+    private Boolean defaultStatus;
+
     @SerializedName("status")
     @Expose
     private Boolean status;
@@ -44,6 +48,7 @@ public class ComponentPojo {
         RelayComponent component = new RelayComponent();
         component.setType(ComponentType.RELAY);
         component.setIndex(index);
+        component.setDefaultStatus(defaultStatus);
         component.setStatus(status);
 
         return component;
@@ -75,6 +80,14 @@ public class ComponentPojo {
         this.type = type;
     }
 
+    public Boolean getDefaultStatus() {
+        return defaultStatus;
+    }
+
+    public void setDefaultStatus(Boolean defaultStatus) {
+        this.defaultStatus = defaultStatus;
+    }
+
     public Boolean getStatus() {
         return status;
     }
@@ -97,5 +110,17 @@ public class ComponentPojo {
 
     public void setHumidity(Double humidity) {
         this.humidity = humidity;
+    }
+
+    @Override
+    public String toString() {
+        return "ComponentPojo{" +
+                "index=" + index +
+                ", type=" + type +
+                ", defaultStatus=" + defaultStatus +
+                ", status=" + status +
+                ", temperature=" + temperature +
+                ", humidity=" + humidity +
+                '}';
     }
 }
