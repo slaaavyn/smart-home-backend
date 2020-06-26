@@ -1,4 +1,4 @@
-package tk.slaaavyn.slavikhomebackend.component;
+package tk.slaaavyn.slavikhomebackend;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
