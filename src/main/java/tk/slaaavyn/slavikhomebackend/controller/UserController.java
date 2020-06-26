@@ -7,11 +7,14 @@ import tk.slaaavyn.slavikhomebackend.config.EndpointConstants;
 import tk.slaaavyn.slavikhomebackend.dto.user.UpdatePasswordDto;
 import tk.slaaavyn.slavikhomebackend.dto.user.UserRequestDto;
 import tk.slaaavyn.slavikhomebackend.dto.user.UserResponseDto;
+import tk.slaaavyn.slavikhomebackend.exception.ApiRequestException;
+import tk.slaaavyn.slavikhomebackend.model.Role;
 import tk.slaaavyn.slavikhomebackend.model.User;
 import tk.slaaavyn.slavikhomebackend.security.SecurityConstants;
 import tk.slaaavyn.slavikhomebackend.security.jwt.JwtUser;
 import tk.slaaavyn.slavikhomebackend.service.UserService;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,12 +29,8 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<UserResponseDto> createAdmin(@RequestBody UserRequestDto userDto) {
+    public ResponseEntity<UserResponseDto> createUser(@RequestBody @Valid UserRequestDto userDto) {
         User result = userService.createUser(userDto.fromDto());
-
-        if(result == null) {
-            return ResponseEntity.badRequest().build();
-        }
 
         return ResponseEntity.ok(UserResponseDto.toDto(result));
     }
@@ -46,70 +45,46 @@ public class UserController {
     }
 
     @GetMapping(value = "{id}")
-    public ResponseEntity<UserResponseDto> getAdminById(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<UserResponseDto> getUserById(@PathVariable(name = "id") Long id) {
         User user = userService.getById(id);
-
-        if (user == null) {
-            return ResponseEntity.badRequest().build();
-        }
 
         return ResponseEntity.ok(UserResponseDto.toDto(user));
     }
 
     @PutMapping("/update-info/{id}")
-    public ResponseEntity<UserResponseDto> updateAdmin(@PathVariable(name = "id") Long id,
-                                                       @RequestBody UserRequestDto userDto) {
+    public ResponseEntity<UserResponseDto> updateInfo(@PathVariable(name = "id") Long id,
+                                                       @RequestBody @Valid UserRequestDto userDto) {
+
         JwtUser jwtUser = ((JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        if (JwtUser.userHasAuthority(jwtUser.getAuthorities(), SecurityConstants.ROLE_USER) && !jwtUser.getId().equals(id)) {
-            return ResponseEntity.badRequest().build();
+        if (JwtUser.userHasAuthority(jwtUser.getAuthorities(), Role.ROLE_USER.name()) && !jwtUser.getId().equals(id)) {
+            throw new ApiRequestException("user cannot update info not belonging to his account");
         }
 
         User result = userService.updateUserInfo(id, userDto.fromDto());
 
-        if (result == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
         return ResponseEntity.ok(UserResponseDto.toDto(result));
     }
 
-    @PutMapping("/update-password/{id}")
-    public ResponseEntity<Object> updateAdmin(@PathVariable(name = "id") Long id,
-                                                       @RequestBody UpdatePasswordDto passwordDto) {
-
+    @PutMapping("/update-password")
+    public ResponseEntity<Object> updatePassword(@RequestBody @Valid UpdatePasswordDto passwordDto) {
         JwtUser jwtUser = ((JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-        if (JwtUser.userHasAuthority(jwtUser.getAuthorities(), SecurityConstants.ROLE_USER) && !jwtUser.getId().equals(id)) {
-            return ResponseEntity.badRequest().build();
-        }
 
-        boolean isSuccess = userService.updatePassword(id, passwordDto);
-
-        if (!isSuccess) {
-            return ResponseEntity.badRequest().build();
-        }
+        userService.updatePassword(jwtUser.getId(), passwordDto);
 
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/update-role/{id}")
-    public ResponseEntity<UserResponseDto> updateAdminPassword(@PathVariable(name = "id") Long id,
-                                              @RequestParam("roleName") String roleName) {
+    public ResponseEntity<UserResponseDto> updateRole(@PathVariable(name = "id") Long id,
+                                              @RequestParam("role") Role roleName) {
         User result = userService.updateUserRole(id, roleName);
-
-        if (result == null) {
-            return ResponseEntity.badRequest().build();
-        }
 
         return ResponseEntity.ok(UserResponseDto.toDto(result));
     }
 
     @DeleteMapping(value = "{id}")
-    public ResponseEntity<Object> deleteAdmin(@PathVariable(name = "id") Long id) {
-        boolean isSuccess = userService.removeById(id);
-        if(!isSuccess){
-            return ResponseEntity.badRequest().build();
-        }
-
+    public ResponseEntity<Object> deleteUser(@PathVariable(name = "id") Long id) {
+        userService.removeById(id);
         return ResponseEntity.ok().build();
     }
 

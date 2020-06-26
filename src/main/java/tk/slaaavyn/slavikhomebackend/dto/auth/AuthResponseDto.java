@@ -14,7 +14,9 @@ public class AuthResponseDto {
 
     public static AuthResponseDto toDto(UserResponseDto user, String token,
                                         Date tokenExpired, RefreshToken refreshToken) {
+
         AuthResponseDto responseDto = new AuthResponseDto();
+
         responseDto.setUser(user);
         responseDto.setToken(token);
         responseDto.setTokenExpired(tokenExpired);

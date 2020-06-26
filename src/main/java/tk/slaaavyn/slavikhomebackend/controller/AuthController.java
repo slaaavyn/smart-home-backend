@@ -21,6 +21,7 @@ import tk.slaaavyn.slavikhomebackend.security.jwt.JwtTokenProvider;
 import tk.slaaavyn.slavikhomebackend.service.RefreshTokenService;
 import tk.slaaavyn.slavikhomebackend.service.UserService;
 
+import javax.validation.Valid;
 import java.util.Collections;
 import java.util.Date;
 
@@ -42,32 +43,20 @@ public class AuthController {
     }
 
     @PostMapping
-    public ResponseEntity<AuthResponseDto> login(@RequestBody AuthRequestDto requestDto) {
-        if(requestDto == null || requestDto.getUsername() == null || requestDto.getPassword() == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
+    public ResponseEntity<AuthResponseDto> login(@RequestBody @Valid AuthRequestDto requestDto) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(requestDto.getUsername(), requestDto.getPassword()));
 
         User user = userService.getByUsername(requestDto.getUsername());
 
-        if (user == null) {
-            throw new UsernameNotFoundException("User with username: " + requestDto.getUsername() + " not found");
-        }
-
         return ResponseEntity.ok(generateTokenResponse(user));
     }
 
     @PostMapping(value = "/refresh-token")
-    public ResponseEntity<AuthResponseDto> refreshToken(@RequestBody RefreshTokenRequestDto requestDto) {
-        if(requestDto == null || requestDto.getUsername() == null || requestDto.getRefreshToken() == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
+    public ResponseEntity<AuthResponseDto> refreshToken(@RequestBody @Valid RefreshTokenRequestDto requestDto) {
         User user = userService.getByUsername(requestDto.getUsername());
 
-        if(user == null || !refreshTokenService.validate(requestDto.fromDto())) {
+        if(refreshTokenService.validate(requestDto.fromDto())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -75,10 +64,10 @@ public class AuthController {
     }
 
     private AuthResponseDto generateTokenResponse(User user) {
-        Date tokenExpired = new Date(new Date().getTime() + 86400000);
+        Date tokenExpired = new Date(new Date().getTime() + SecurityConstants.TOKEN_VALIDITY_TIME);
 
         String token = SecurityConstants.TOKEN_PREFIX +
-                jwtTokenProvider.createToken(user.getUsername(), Collections.singletonList(user.getRole().getName()));
+                jwtTokenProvider.createToken(user.getUsername(), Collections.singletonList(user.getRole().name()));
 
         RefreshToken refreshToken = refreshTokenService.create(user.getUsername());
 

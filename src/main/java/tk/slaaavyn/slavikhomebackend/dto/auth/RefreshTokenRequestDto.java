@@ -3,9 +3,15 @@ package tk.slaaavyn.slavikhomebackend.dto.auth;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import tk.slaaavyn.slavikhomebackend.model.RefreshToken;
 
+import javax.validation.constraints.NotEmpty;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RefreshTokenRequestDto {
+
+    @NotEmpty(message = "username cannot be empty")
     private String username;
+
+    @NotEmpty(message = "refreshToken cannot be empty")
     private String refreshToken;
 
     public RefreshToken fromDto() {

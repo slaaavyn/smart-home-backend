@@ -12,6 +12,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 import tk.slaaavyn.slavikhomebackend.model.ComponentType;
 import tk.slaaavyn.slavikhomebackend.model.Device;
+import tk.slaaavyn.slavikhomebackend.model.Role;
 import tk.slaaavyn.slavikhomebackend.security.SecurityConstants;
 import tk.slaaavyn.slavikhomebackend.security.jwt.JwtTokenProvider;
 import tk.slaaavyn.slavikhomebackend.security.jwt.JwtUser;
@@ -112,6 +113,6 @@ public class DeviceSocketHandler extends TextWebSocketHandler {
         return !tokenProvider.validateToken(token)
                 || !JwtUser.userHasAuthority(
                         tokenProvider.getAuthentication(token).getAuthorities(),
-                        SecurityConstants.ROLE_DEVICE);
+                        Role.ROLE_DEVICE.name());
     }
 }

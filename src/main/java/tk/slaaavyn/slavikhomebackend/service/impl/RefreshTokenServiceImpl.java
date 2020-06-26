@@ -35,11 +35,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public boolean validate(RefreshToken refreshToken) {
-        if (refreshToken == null || refreshToken.getUsername() == null
-                || refreshToken.getToken() == null) {
-            return false;
-        }
-
         return refreshTokenRepository
                 .findRefreshTokenByUsernameAndToken(refreshToken.getUsername(), refreshToken.getToken()) != null;
     }
