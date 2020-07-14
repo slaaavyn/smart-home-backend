@@ -1,5 +1,6 @@
 package tk.slaaavyn.slavikhomebackend.dto.user;
 
+import tk.slaaavyn.slavikhomebackend.model.Role;
 import tk.slaaavyn.slavikhomebackend.model.User;
 
 public class UserResponseDto {
@@ -7,15 +8,16 @@ public class UserResponseDto {
     private String username;
     private String firstName;
     private String lastName;
-    private String role;
+    private Role role;
 
     public static UserResponseDto toDto(User user) {
         UserResponseDto userDto = new UserResponseDto();
+
         userDto.setId(user.getId());
         userDto.setUsername(user.getUsername());
         userDto.setFirstName(user.getFirstName());
         userDto.setLastName(user.getLastName());
-        userDto.setRole(user.getRole().getName());
+        userDto.setRole(user.getRole());
 
         return userDto;
     }
@@ -52,11 +54,11 @@ public class UserResponseDto {
         this.lastName = lastName;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 

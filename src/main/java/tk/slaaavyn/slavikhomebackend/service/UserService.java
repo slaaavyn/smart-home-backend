@@ -1,6 +1,7 @@
 package tk.slaaavyn.slavikhomebackend.service;
 
 import tk.slaaavyn.slavikhomebackend.dto.user.UpdatePasswordDto;
+import tk.slaaavyn.slavikhomebackend.model.Role;
 import tk.slaaavyn.slavikhomebackend.model.User;
 
 import java.util.List;
@@ -20,10 +21,10 @@ public interface UserService {
 
     User updateUserInfo(long userId, User incomingUser);
 
-    User updateUserRole(long userId, String roleName);
+    User updateUserRole(long userId, Role newRole);
 
-    boolean updatePassword(long userId, UpdatePasswordDto passwordDto);
+    void updatePassword(long userId, UpdatePasswordDto passwordDto);
 
-    boolean removeById(long userId);
+    void removeById(long userId);
 
 }

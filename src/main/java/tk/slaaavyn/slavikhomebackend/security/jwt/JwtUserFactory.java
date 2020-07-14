@@ -16,7 +16,7 @@ public final class JwtUserFactory {
                 user.getUsername(),
                 user.getPassword(),
                 true,
-                Collections.singleton(new SimpleGrantedAuthority(user.getRole().getName()))
+                Collections.singleton(new SimpleGrantedAuthority(user.getRole().name()))
         );
     }
 }
