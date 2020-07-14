@@ -55,7 +55,7 @@ public class RoomController {
 
 
     @GetMapping(value = "{id}")
-    public ResponseEntity<RoomDto> getDevice(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<RoomDto> getDevicesInRoom(@PathVariable(name = "id") Long id) {
         Room result = roomService.getById(id);
         if (result == null) {
             return ResponseEntity.badRequest().build();
@@ -91,7 +91,7 @@ public class RoomController {
     }
 
     @DeleteMapping(value = "{id}")
-    public ResponseEntity<DeviceDto> deleteDevice(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<DeviceDto> deleteRoom(@PathVariable(name = "id") Long id) {
         if (!roomService.delete(id)) {
             return ResponseEntity.badRequest().build();
         }
