@@ -1,25 +1,25 @@
 package tk.slaaavyn.slavikhomebackend.controller;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import tk.slaaavyn.slavikhomebackend.dto.auth.AuthRequestDto;
+import tk.slaaavyn.slavikhomebackend.dto.auth.RefreshTokenRequestDto;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class AuthControllerTest extends AbstractControllerTest{
-
-    @Autowired
-    private AuthController authController;
+class AuthControllerTest extends BaseControllerTest {
 
     @Test
     public void auth() throws Exception {
-        String jsonContent = "{ \"username\": \"root\", \"password\": \"toor\" }";
+        AuthRequestDto authRequestDto = new AuthRequestDto();
+        authRequestDto.setUsername(defaultAdminUsername);
+        authRequestDto.setPassword(defaultAdminPassword);
 
         mockMvc.perform(post("/auth")
-                .content(jsonContent)
+                .content(super.json(authRequestDto))
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful());
@@ -27,15 +27,14 @@ class AuthControllerTest extends AbstractControllerTest{
 
     @Test
     public void refreshToken() throws Exception {
-        String refreshToken = extractRefreshToken(login("root", "toor").andReturn());
+        String refreshToken = extractRefreshToken(login(defaultAdminUsername, defaultAdminPassword).andReturn());
 
-        String jsonContent = "{ " +
-                "\"username\": \"root\", " +
-                "\"refreshToken\": \"" + refreshToken + "\" " +
-                "}";
+        RefreshTokenRequestDto refreshTokenDto = new RefreshTokenRequestDto();
+        refreshTokenDto.setUsername(defaultAdminUsername);
+        refreshTokenDto.setRefreshToken(refreshToken);
 
         mockMvc.perform(post("/auth/refresh-token")
-                .content(jsonContent)
+                .content(super.json(refreshTokenDto))
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().is2xxSuccessful());

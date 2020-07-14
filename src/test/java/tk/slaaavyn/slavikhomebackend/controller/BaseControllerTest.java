@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -12,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import tk.slaaavyn.slavikhomebackend.config.EndpointConstants;
 import tk.slaaavyn.slavikhomebackend.dto.auth.AuthRequestDto;
 
 import java.io.IOException;
@@ -23,10 +25,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class AbstractControllerTest {
+public abstract class BaseControllerTest {
 
     @Autowired
     protected MockMvc mockMvc;
+
+    @Value("${default.admin.username}")
+    protected String defaultAdminUsername;
+
+    @Value("${default.admin.password}")
+    protected String defaultAdminPassword;
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -40,7 +48,7 @@ public class AbstractControllerTest {
         auth.setPassword(password);
 
         return mockMvc.perform(
-                post("/auth")
+                post(EndpointConstants.AUTH_ENDPOINT)
                         .content(json(auth))
                         .contentType(MediaType.APPLICATION_JSON));
     }

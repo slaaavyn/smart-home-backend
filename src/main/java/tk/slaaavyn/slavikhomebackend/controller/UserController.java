@@ -5,12 +5,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import tk.slaaavyn.slavikhomebackend.config.EndpointConstants;
 import tk.slaaavyn.slavikhomebackend.dto.user.UpdatePasswordDto;
+import tk.slaaavyn.slavikhomebackend.dto.user.UpdateUserInfoDto;
 import tk.slaaavyn.slavikhomebackend.dto.user.UserRequestDto;
 import tk.slaaavyn.slavikhomebackend.dto.user.UserResponseDto;
 import tk.slaaavyn.slavikhomebackend.exception.ApiRequestException;
 import tk.slaaavyn.slavikhomebackend.model.Role;
 import tk.slaaavyn.slavikhomebackend.model.User;
-import tk.slaaavyn.slavikhomebackend.security.SecurityConstants;
 import tk.slaaavyn.slavikhomebackend.security.jwt.JwtUser;
 import tk.slaaavyn.slavikhomebackend.service.UserService;
 
@@ -53,7 +53,7 @@ public class UserController {
 
     @PutMapping("/update-info/{id}")
     public ResponseEntity<UserResponseDto> updateInfo(@PathVariable(name = "id") Long id,
-                                                       @RequestBody @Valid UserRequestDto userDto) {
+                                                       @RequestBody @Valid UpdateUserInfoDto userDto) {
 
         JwtUser jwtUser = ((JwtUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         if (JwtUser.userHasAuthority(jwtUser.getAuthorities(), Role.ROLE_USER.name()) && !jwtUser.getId().equals(id)) {
