@@ -6,8 +6,8 @@ import tk.slaaavyn.slavikhomebackend.model.Room;
 import tk.slaaavyn.slavikhomebackend.model.device.component.BaseComponent;
 import tk.slaaavyn.slavikhomebackend.repo.ComponentRepository;
 import tk.slaaavyn.slavikhomebackend.repo.DeviceRepository;
-import tk.slaaavyn.slavikhomebackend.repo.RoomRepository;
 import tk.slaaavyn.slavikhomebackend.service.DeviceService;
+import tk.slaaavyn.slavikhomebackend.service.RoomService;
 import tk.slaaavyn.slavikhomebackend.service.WsResponseService;
 import tk.slaaavyn.slavikhomebackend.ws.models.response.MethodResponseToClient;
 
@@ -21,14 +21,13 @@ public class DeviceServiceImpl implements DeviceService {
 
     private final DeviceRepository deviceRepository;
     private final ComponentRepository componentRepository;
-    private final RoomRepository roomRepository;
+    private final RoomService roomService;
     private final WsResponseService wsResponseService;
 
-    public DeviceServiceImpl(DeviceRepository deviceRepository, ComponentRepository componentRepository,
-                             RoomRepository roomRepository, WsResponseService wsResponseService) {
+    public DeviceServiceImpl(DeviceRepository deviceRepository, ComponentRepository componentRepository, RoomService roomService, WsResponseService wsResponseService) {
         this.deviceRepository = deviceRepository;
         this.componentRepository = componentRepository;
-        this.roomRepository = roomRepository;
+        this.roomService = roomService;
         this.wsResponseService = wsResponseService;
     }
 
@@ -113,9 +112,9 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public Device setDeviceToRoom(long deviceId, long roomId) {
         Device device = deviceRepository.findDeviceById(deviceId);
-        Room room = roomRepository.findRoomById(roomId);
+        Room room = roomService.getById(roomId);
 
-        if (device == null || room == null) {
+        if (device == null) {
             return null;
         }
 

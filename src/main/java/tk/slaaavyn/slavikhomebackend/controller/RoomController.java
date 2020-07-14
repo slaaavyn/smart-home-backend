@@ -27,9 +27,6 @@ public class RoomController {
     @PostMapping
     public ResponseEntity<RoomDto> create(@RequestParam("roomName") String roomName) {
         Room result = roomService.create(roomName);
-        if(result == null) {
-            return ResponseEntity.badRequest().build();
-        }
 
         return ResponseEntity.ok(RoomDto.toDto(result, new ArrayList<>()));
     }
@@ -57,9 +54,6 @@ public class RoomController {
     @GetMapping(value = "{id}")
     public ResponseEntity<RoomDto> getDevicesInRoom(@PathVariable(name = "id") Long id) {
         Room result = roomService.getById(id);
-        if (result == null) {
-            return ResponseEntity.badRequest().build();
-        }
 
         List<DeviceDto> deviceDtoList = new ArrayList<>();
         result.getDeviceList().forEach(device -> {
@@ -76,9 +70,6 @@ public class RoomController {
                                                              @RequestParam("roomName") String roomName) {
 
         Room result = roomService.update(id, roomName);
-        if (result == null) {
-            return ResponseEntity.badRequest().build();
-        }
 
         List<DeviceDto> deviceDtoList = new ArrayList<>();
         result.getDeviceList().forEach(device -> {
@@ -91,10 +82,8 @@ public class RoomController {
     }
 
     @DeleteMapping(value = "{id}")
-    public ResponseEntity<DeviceDto> deleteRoom(@PathVariable(name = "id") Long id) {
-        if (!roomService.delete(id)) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<Object> deleteRoom(@PathVariable(name = "id") Long id) {
+        roomService.delete(id);
 
         return ResponseEntity.ok().build();
     }

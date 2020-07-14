@@ -13,5 +13,5 @@ public interface RoomService {
 
     Room update(long roomId, String newRoomName);
 
-    boolean delete(long roomId);
+    void delete(long roomId);
 }

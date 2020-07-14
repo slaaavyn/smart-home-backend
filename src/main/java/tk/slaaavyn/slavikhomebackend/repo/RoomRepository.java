@@ -3,7 +3,9 @@ package tk.slaaavyn.slavikhomebackend.repo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import tk.slaaavyn.slavikhomebackend.model.Room;
 
+import java.util.Optional;
+
 public interface RoomRepository extends JpaRepository<Room, Long> {
-    Room findRoomById(Long id);
-    Room findRoomByName(String roomName);
+    Optional<Room> findById(Long id);
+    Optional<Room> findByName(String roomName);
 }

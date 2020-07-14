@@ -1,11 +1,13 @@
 package tk.slaaavyn.slavikhomebackend.service.impl;
 
 import org.springframework.stereotype.Service;
+import tk.slaaavyn.slavikhomebackend.exception.ConflictException;
+import tk.slaaavyn.slavikhomebackend.exception.NotFoundException;
 import tk.slaaavyn.slavikhomebackend.model.Room;
 import tk.slaaavyn.slavikhomebackend.repo.DeviceRepository;
 import tk.slaaavyn.slavikhomebackend.repo.RoomRepository;
-import tk.slaaavyn.slavikhomebackend.service.WsResponseService;
 import tk.slaaavyn.slavikhomebackend.service.RoomService;
+import tk.slaaavyn.slavikhomebackend.service.WsResponseService;
 import tk.slaaavyn.slavikhomebackend.ws.models.response.MethodResponseToClient;
 
 import java.util.List;
@@ -26,12 +28,11 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Room create(String roomName) {
-        Room room = roomRepository.findRoomByName(roomName);
-        if (room != null) {
-            return null;
+        if(roomRepository.findByName(roomName).isPresent()) {
+            throw new ConflictException("room with name: " + roomName + " already exist");
         }
 
-        room = new Room();
+        Room room = new Room();
         room.setName(roomName);
 
         room = roomRepository.save(room);
@@ -42,7 +43,8 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Room getById(long roomId) {
-        return roomRepository.findRoomById(roomId);
+        return roomRepository.findById(roomId)
+                .orElseThrow(() -> new NotFoundException("room with id :" + roomId + " not found"));
     }
 
     @Override
@@ -52,10 +54,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public Room update(long roomId, String newRoomName) {
-        Room room = roomRepository.findRoomById(roomId);
-        if (room == null) {
-            return null;
-        }
+        Room room = getById(roomId);
 
         room.setName(newRoomName);
 
@@ -66,17 +65,14 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public boolean delete(long roomId) {
-        Room room = roomRepository.findRoomById(roomId);
-        if (room == null) {
-            return false;
-        }
+    public void delete(long roomId) {
+        Room room = getById(roomId);
 
         room.getDeviceList().forEach(device -> device.setRoom(null));
         deviceRepository.saveAll(room.getDeviceList());
 
         roomRepository.delete(room);
+
         wsResponseService.emmitRoomToClient(room, MethodResponseToClient.DELETE);
-        return true;
     }
 }
