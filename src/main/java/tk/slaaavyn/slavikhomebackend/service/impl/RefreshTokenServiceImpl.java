@@ -21,26 +21,29 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     public RefreshToken create(String username) {
-        RefreshToken refreshToken = refreshTokenRepository.findRefreshTokenByUsername(username);
-        if (refreshToken == null) {
-            refreshToken = new RefreshToken();
-        }
+        RefreshToken refreshToken = refreshTokenRepository
+                .findByUsername(username)
+                .orElse(new RefreshToken());
+
 
         Date expiredDate = new Date(new Date().getTime() + SecurityConstants.REFRESH_TOKEN_VALIDITY_TIME);
+
         refreshToken.setExpiredDate(expiredDate);
         refreshToken.setUsername(username);
         refreshToken.setToken(UUID.randomUUID().toString());
+
         return refreshTokenRepository.save(refreshToken);
     }
 
     @Override
-    public boolean validate(RefreshToken refreshToken) {
+    public boolean isTokenValid(RefreshToken refreshToken) {
         return refreshTokenRepository
-                .findRefreshTokenByUsernameAndToken(refreshToken.getUsername(), refreshToken.getToken()) != null;
+                .findByUsernameAndToken(refreshToken.getUsername(), refreshToken.getToken())
+                .isPresent();
     }
 
-    @Scheduled(cron = "0 0 1 * * *")
+    @Scheduled(cron = "0 0 1 * * ?")
     private void removeOldTokens() {
-        refreshTokenRepository.deleteRefreshTokensByExpiredDateBefore(new Date());
+        refreshTokenRepository.deleteAllByExpiredDateBefore(new Date());
     }
 }

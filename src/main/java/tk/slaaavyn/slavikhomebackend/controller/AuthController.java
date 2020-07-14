@@ -1,10 +1,8 @@
 package tk.slaaavyn.slavikhomebackend.controller;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +12,7 @@ import tk.slaaavyn.slavikhomebackend.dto.auth.AuthRequestDto;
 import tk.slaaavyn.slavikhomebackend.dto.auth.AuthResponseDto;
 import tk.slaaavyn.slavikhomebackend.dto.auth.RefreshTokenRequestDto;
 import tk.slaaavyn.slavikhomebackend.dto.user.UserResponseDto;
+import tk.slaaavyn.slavikhomebackend.exception.ApiRequestException;
 import tk.slaaavyn.slavikhomebackend.model.RefreshToken;
 import tk.slaaavyn.slavikhomebackend.model.User;
 import tk.slaaavyn.slavikhomebackend.security.SecurityConstants;
@@ -56,8 +55,8 @@ public class AuthController {
     public ResponseEntity<AuthResponseDto> refreshToken(@RequestBody @Valid RefreshTokenRequestDto requestDto) {
         User user = userService.getByUsername(requestDto.getUsername());
 
-        if(refreshTokenService.validate(requestDto.fromDto())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (!refreshTokenService.isTokenValid(requestDto.fromDto())) {
+            throw new ApiRequestException("refresh token is not valid");
         }
 
         return ResponseEntity.ok(generateTokenResponse(user));
