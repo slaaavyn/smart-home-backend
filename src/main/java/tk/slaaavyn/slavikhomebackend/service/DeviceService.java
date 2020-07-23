@@ -5,9 +5,9 @@ import tk.slaaavyn.slavikhomebackend.model.Device;
 import java.util.List;
 
 public interface DeviceService {
-    Device connect(Device device);
+    void connect(Device device);
 
-    List<Device> disconnect(String deviceUid);
+    void disconnect(String deviceUid);
 
     Device getById(long deviceId);
 
@@ -21,7 +21,7 @@ public interface DeviceService {
 
     Device setDeviceToRoom(long deviceId, long roomId);
 
-    boolean removeDevice(long deviceId);
+    void removeDevice(long deviceId);
 
     boolean isDeviceOnline(Device device);
 }

@@ -38,10 +38,6 @@ public class DeviceController {
     public ResponseEntity<DeviceDto> getDevice(@PathVariable(name = "id") Long id) {
         Device result = deviceService.getById(id);
 
-        if (result == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
         boolean isDeviceOnline = deviceService.isDeviceOnline(result);
 
         return ResponseEntity.ok(DeviceDto.toDTO(result, isDeviceOnline));
@@ -51,9 +47,6 @@ public class DeviceController {
     public ResponseEntity<DeviceDto> updateDeviceComponentDescription(@PathVariable(name = "id") Long id,
                                                                       @RequestParam("description") String description) {
         Device result = deviceService.updateDeviceComponentDescription(id, description);
-        if (result == null) {
-            return ResponseEntity.badRequest().build();
-        }
 
         boolean isDeviceOnline = deviceService.isDeviceOnline(result);
 
@@ -65,9 +58,6 @@ public class DeviceController {
                                                              @RequestParam("description") String description) {
 
         Device result = deviceService.updateDeviceDescription(id, description);
-        if (result == null) {
-            return ResponseEntity.badRequest().build();
-        }
 
         boolean isDeviceOnline = deviceService.isDeviceOnline(result);
 
@@ -79,9 +69,6 @@ public class DeviceController {
                                                              @PathVariable("roomId") Long roomId) {
 
         Device result = deviceService.setDeviceToRoom(id, roomId);
-        if (result == null) {
-            return ResponseEntity.badRequest().build();
-        }
 
         boolean isDeviceOnline = deviceService.isDeviceOnline(result);
 
@@ -89,11 +76,8 @@ public class DeviceController {
     }
 
     @DeleteMapping(value = "{id}")
-    public ResponseEntity<DeviceDto> deleteDevice(@PathVariable(name = "id") Long id) {
-        if (!deviceService.removeDevice(id)) {
-            return ResponseEntity.badRequest().build();
-        }
-
+    public ResponseEntity<Object> deleteDevice(@PathVariable(name = "id") Long id) {
+        deviceService.removeDevice(id);
         return ResponseEntity.ok().build();
     }
 }

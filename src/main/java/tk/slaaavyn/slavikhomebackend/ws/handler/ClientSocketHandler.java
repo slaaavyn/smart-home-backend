@@ -20,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 public class ClientSocketHandler extends TextWebSocketHandler {
-    private List<WebSocketSession> sessions;
+    private final List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
     private final Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     private final DeviceSocketHandler deviceSocketHandler;
@@ -29,14 +29,12 @@ public class ClientSocketHandler extends TextWebSocketHandler {
     public ClientSocketHandler(@Lazy DeviceSocketHandler deviceSocketHandler, JwtTokenProvider tokenProvider) {
         this.deviceSocketHandler = deviceSocketHandler;
         this.tokenProvider = tokenProvider;
-
-        this.sessions = new CopyOnWriteArrayList<>();
     }
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) {
         BaseCommand command = WsCommandParser.parseBaseCommand(message.getPayload());
-        if (command == null || command.getToken() == null || isTokenInvalid(command.getToken())) return;
+        if (command == null || isTokenInvalid(command.getToken())) return;
 
         switch (command.getType()) {
             case ACK:
@@ -67,16 +65,12 @@ public class ClientSocketHandler extends TextWebSocketHandler {
         sessions.remove(session);
     }
 
-    public void emmitForAll(String message) {
+    public void emmitForAll(String message) throws IOException {
         TextMessage textMessage = new TextMessage(message);
 
-        sessions.forEach(session -> {
-            try {
-                session.sendMessage(textMessage);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        for(WebSocketSession session : sessions) {
+            session.sendMessage(textMessage);
+        }
     }
 
     private boolean isTokenInvalid(String token) {

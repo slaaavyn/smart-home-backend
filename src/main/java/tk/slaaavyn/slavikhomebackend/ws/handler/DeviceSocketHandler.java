@@ -10,10 +10,9 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import tk.slaaavyn.slavikhomebackend.exception.WsConnectionException;
 import tk.slaaavyn.slavikhomebackend.model.ComponentType;
-import tk.slaaavyn.slavikhomebackend.model.Device;
 import tk.slaaavyn.slavikhomebackend.model.Role;
-import tk.slaaavyn.slavikhomebackend.security.SecurityConstants;
 import tk.slaaavyn.slavikhomebackend.security.jwt.JwtTokenProvider;
 import tk.slaaavyn.slavikhomebackend.security.jwt.JwtUser;
 import tk.slaaavyn.slavikhomebackend.service.DeviceService;
@@ -30,7 +29,7 @@ public class DeviceSocketHandler extends TextWebSocketHandler {
     private final Logger logger = LoggerFactory.getLogger(DeviceSocketHandler.class);
     private final Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
-    private HashMap<WebSocketSession, String> sessions;
+    private final HashMap<WebSocketSession, String> sessions = new HashMap<>();
 
     private final DeviceService deviceService;
     private final JwtTokenProvider tokenProvider;
@@ -38,30 +37,25 @@ public class DeviceSocketHandler extends TextWebSocketHandler {
     public DeviceSocketHandler(DeviceService deviceService, JwtTokenProvider tokenProvider) {
         this.deviceService = deviceService;
         this.tokenProvider = tokenProvider;
-
-        this.sessions = new HashMap<>();
     }
 
     @Override
-    public void handleTextMessage(WebSocketSession session, TextMessage message) {
-        DevicePojo devicePojo = null;
-
+    public void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
         try {
-            devicePojo = gson.fromJson(message.getPayload(), DevicePojo.class);
-        } catch (IllegalStateException | JsonSyntaxException e) {
-            logger.warn("parse incoming device: " + e);
-        }
+            DevicePojo devicePojo = gson.fromJson(message.getPayload(), DevicePojo.class);
 
-        if (devicePojo == null || devicePojo.getToken() == null || devicePojo.getUid() == null
-                || isAccessDenied(devicePojo.getToken())) {
-            return;
-        }
+            if (isAccessDenied(devicePojo)) {
+                throw new WsConnectionException("access is not denied");
+            };
 
-        Device device = deviceService.connect(devicePojo.fromPojo());
-        if (device == null) return;
+            deviceService.connect(devicePojo.fromPojo());
 
-        if(!sessions.containsValue(device.getUid())) {
-            sessions.put(session, device.getUid());
+            if(!sessions.containsValue(devicePojo.getUid())) {
+                sessions.put(session, devicePojo.getUid());
+            }
+        } catch (IllegalStateException | JsonSyntaxException | WsConnectionException e) {
+            session.close();
+            logger.warn(e.getMessage());
         }
     }
 
@@ -107,8 +101,13 @@ public class DeviceSocketHandler extends TextWebSocketHandler {
         return null;
     }
 
-    private boolean isAccessDenied(String token) {
-        token = token.substring(7);
+    private boolean isAccessDenied(DevicePojo devicePojo) {
+        if (devicePojo == null || devicePojo.getUid() == null
+                || devicePojo.getToken() == null || devicePojo.getToken().length() < 8) {
+            throw new IllegalStateException("device pojo is not valid");
+        }
+
+        String token = devicePojo.getToken().substring(7);
 
         return !tokenProvider.validateToken(token)
                 || !JwtUser.userHasAuthority(

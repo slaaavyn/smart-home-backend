@@ -3,7 +3,9 @@ package tk.slaaavyn.slavikhomebackend.repo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import tk.slaaavyn.slavikhomebackend.model.Device;
 
+import java.util.Optional;
+
 public interface DeviceRepository extends JpaRepository<Device, Long> {
-    Device findDeviceById(Long id);
-    Device findDeviceByUid(String id);
+    Optional<Device> findById(Long id);
+    Optional<Device> findByUid(String id);
 }

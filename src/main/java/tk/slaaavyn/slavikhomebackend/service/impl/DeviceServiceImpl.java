@@ -1,6 +1,7 @@
 package tk.slaaavyn.slavikhomebackend.service.impl;
 
 import org.springframework.stereotype.Service;
+import tk.slaaavyn.slavikhomebackend.exception.NotFoundException;
 import tk.slaaavyn.slavikhomebackend.model.Device;
 import tk.slaaavyn.slavikhomebackend.model.Room;
 import tk.slaaavyn.slavikhomebackend.model.device.component.BaseComponent;
@@ -24,7 +25,8 @@ public class DeviceServiceImpl implements DeviceService {
     private final RoomService roomService;
     private final WsResponseService wsResponseService;
 
-    public DeviceServiceImpl(DeviceRepository deviceRepository, ComponentRepository componentRepository, RoomService roomService, WsResponseService wsResponseService) {
+    public DeviceServiceImpl(DeviceRepository deviceRepository, ComponentRepository componentRepository,
+                             RoomService roomService, WsResponseService wsResponseService) {
         this.deviceRepository = deviceRepository;
         this.componentRepository = componentRepository;
         this.roomService = roomService;
@@ -32,10 +34,14 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public Device connect(Device incomingDevice) {
-        if (incomingDevice == null || incomingDevice.getUid() == null) return null;
+    public void connect(Device incomingDevice) {
+        if (incomingDevice == null || incomingDevice.getUid() == null) {
+            throw new IllegalStateException("incoming device is not valid");
+        };
 
-        Device device = deviceRepository.findDeviceByUid(incomingDevice.getUid());
+        Device device = deviceRepository
+                .findByUid(incomingDevice.getUid())
+                .orElse(null);
 
         if (device != null) {
             device = saveExistDevice(device, incomingDevice.getComponents());
@@ -48,25 +54,22 @@ public class DeviceServiceImpl implements DeviceService {
         }
 
         wsResponseService.emmitDeviceToClient(device, true, MethodResponseToClient.UPDATE);
-
-        return device;
     }
 
     @Override
-    public List<Device> disconnect(String deviceUid) {
-        Device device = deviceRepository.findDeviceByUid(deviceUid);
-        if (device == null) return onlineDevices;
-
+    public void disconnect(String deviceUid) {
         onlineDevices.removeIf(onlineDevice -> onlineDevice.getUid().equals(deviceUid));
 
-        wsResponseService.emmitDeviceToClient(device, false, MethodResponseToClient.UPDATE);
-
-        return onlineDevices;
+        wsResponseService.emmitDeviceToClient(
+                deviceRepository.findByUid(deviceUid).orElse(null),
+                false,
+                MethodResponseToClient.UPDATE);
     }
 
     @Override
     public Device getById(long deviceId) {
-        return deviceRepository.findDeviceById(deviceId);
+        return deviceRepository.findById(deviceId)
+                .orElseThrow(() -> new NotFoundException("device with id :" + deviceId + " not found"));
     }
 
     @Override
@@ -81,10 +84,7 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public Device updateDeviceDescription(long deviceId, String description) {
-        Device device = deviceRepository.findDeviceById(deviceId);
-        if (device == null) {
-            return null;
-        }
+        Device device = getById(deviceId);
 
         device.setDescription(description != null ? description : device.getDescription());
 
@@ -111,12 +111,8 @@ public class DeviceServiceImpl implements DeviceService {
 
     @Override
     public Device setDeviceToRoom(long deviceId, long roomId) {
-        Device device = deviceRepository.findDeviceById(deviceId);
+        Device device = getById(deviceId);
         Room room = roomService.getById(roomId);
-
-        if (device == null) {
-            return null;
-        }
 
         device.setRoom(room);
 
@@ -126,16 +122,11 @@ public class DeviceServiceImpl implements DeviceService {
     }
 
     @Override
-    public boolean removeDevice(long deviceId) {
-        Device device = deviceRepository.findDeviceById(deviceId);
-        if (device == null) {
-            return false;
-        }
+    public void removeDevice(long deviceId) {
+        Device device = getById(deviceId);
 
         deviceRepository.delete(device);
         wsResponseService.emmitDeviceToClient(device, isDeviceOnline(device), MethodResponseToClient.DELETE);
-
-        return true;
     }
 
     @Override

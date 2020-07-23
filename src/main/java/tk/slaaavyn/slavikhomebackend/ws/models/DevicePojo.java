@@ -59,4 +59,13 @@ public class DevicePojo {
     public void setComponents(List<ComponentPojo> components) {
         this.components = components;
     }
+
+    @Override
+    public String toString() {
+        return "DevicePojo{" +
+                "uid='" + uid + '\'' +
+                ", token='" + token + '\'' +
+                ", components=" + components +
+                '}';
+    }
 }
